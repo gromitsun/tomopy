@@ -80,7 +80,7 @@ def distribute_jobs(
         Function to be parallelized.
     args : list
         Arguments of the function in a list.
-    kwargs : list
+    kwargs : dict
         Keyword arguments of the function in a dictionary.
     axis : int
         Axis along which parallelization is performed.
@@ -127,7 +127,7 @@ def distribute_jobs(
         _args.append(_prepare_args(func, args, kwargs, istart, iend))
 
     # Start processes.
-    return _start_proc(arr, _args, npool)
+    return _start_proc(arr, _args, ncore)
 
 
 def _prepare_args(func, args, kwargs, istart, iend):
@@ -143,10 +143,10 @@ def _prepare_args(func, args, kwargs, istart, iend):
     return _arg
 
 
-def _start_proc(arr, args, npool):
+def _start_proc(arr, args, ncore):
     shared_arr = get_shared(arr)
     with closing(
-        mp.Pool(processes=len(args),
+        mp.Pool(processes=ncore,
                 initializer=init_shared,
                 initargs=(shared_arr,))) as p:
         p.map_async(_arg_parser, args)
